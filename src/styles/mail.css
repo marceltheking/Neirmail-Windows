@@ -453,6 +453,19 @@
 .mail-split-view.has-reader .wm-search-box input {
   width: 100%;
 }
+.mail-split-view.has-reader .wm-list {
+  overflow-x: hidden;
+}
+.mail-split-view.has-reader .wm-row-sender {
+  width: 96px;
+  flex: none;
+}
+.mail-split-view.has-reader .wm-row-subject {
+  min-width: 0;
+}
+.mail-split-view.has-reader .wm-row-date {
+  flex: none;
+}
 .wm-selected-count {
   padding-left: 5px;
   color: var(--text-dim);
