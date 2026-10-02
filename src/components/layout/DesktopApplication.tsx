@@ -11,6 +11,7 @@ import { useMailStore } from "../../lib/state/mailStore";
 import { useAuthStore } from "../../lib/state/authStore";
 import { useAppSettingsStore } from "../../lib/state/appSettingsStore";
 import { useIdleLock } from "../../lib/hooks/useIdleLock";
+import { listenForBlockedWindows } from "../../lib/mail/links";
 import { useShortcuts } from "../../lib/hooks/useShortcuts";
 import { ShortcutsDialog } from "../shared/ShortcutsDialog";
 import { ComposeWindow } from "../compose/ComposeWindow";
@@ -122,6 +123,13 @@ export function DesktopApplication() {
   const lockNow = useCallback(() => lock(), [lock]);
 
   useIdleLock(autoLockMinutes, lockNow);
+
+  useEffect(() => {
+    const listening = listenForBlockedWindows();
+    return () => {
+      void listening.then((unlisten) => unlisten()).catch(() => undefined);
+    };
+  }, []);
 
   useShortcuts({
     c: () => openCompose(),

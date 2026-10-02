@@ -14,13 +14,18 @@ describe("content security policy", () => {
   const config = JSON.parse(readFileSync("src-tauri/tauri.conf.json", "utf8")) as {
     app: { security: { csp: string } };
   };
-  const connectSrc = config.app.security.csp
-    .split(";")
-    .map((directive) => directive.trim())
-    .find((directive) => directive.startsWith("connect-src"));
+  const directives = config.app.security.csp.split(";").map((directive) => directive.trim());
+  const connectSrc = directives.find((directive) => directive.startsWith("connect-src"));
 
   it("only lets the webview talk to the native bridge, never the network", () => {
     expect(connectSrc).toBe("connect-src ipc: http://ipc.localhost");
+  });
+
+  it("blocks every remote resource and embedded frame an email could try to load", () => {
+    expect(directives).toContain("img-src 'self' data:");
+    expect(directives).toContain("frame-src 'none'");
+    expect(directives).toContain("object-src 'none'");
+    expect(directives).toContain("script-src 'self' 'wasm-unsafe-eval'");
   });
 
   it("keeps every request in the frontend off fetch and XMLHttpRequest, since the policy would block it silently", () => {

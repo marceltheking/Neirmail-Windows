@@ -105,9 +105,18 @@ describe("remoteImageUrl", () => {
 });
 
 describe("email frame hardening", () => {
-  it("grants the frame no scripts, popups, forms or navigation", () => {
+  it("grants the frame no scripts, forms or navigation, only link window requests the shell refuses", () => {
     const flags = EMAIL_FRAME_SANDBOX.split(/\s+/);
-    expect(flags).toEqual(["allow-same-origin"]);
+    expect(flags).toEqual(["allow-same-origin", "allow-popups"]);
+    for (const forbidden of [
+      "allow-scripts",
+      "allow-forms",
+      "allow-top-navigation",
+      "allow-popups-to-escape-sandbox",
+      "allow-modals",
+    ]) {
+      expect(flags).not.toContain(forbidden);
+    }
   });
 
   it("drops tracking and internal attributes an email should never control", () => {

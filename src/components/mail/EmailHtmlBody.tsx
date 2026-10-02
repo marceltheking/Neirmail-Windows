@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import { Image, ShieldCheck } from "@phosphor-icons/react";
 import { fetchRemoteImage } from "../../lib/api/endpoints/attachments";
 import { Button } from "../ui/Button";
 import { useQuery } from "@tanstack/react-query";
 import { getPreferences } from "../../lib/api/endpoints/settings";
-import type { Preferences } from "../../lib/api/types";
-import { stripTrackingParameters } from "../../lib/mail/trackingParams";
-import { parseMailto } from "../../lib/mail/mailto";
-import { useComposeStore } from "../../lib/state/composeStore";
+import { openEmailLink } from "../../lib/mail/links";
 import {
   EMAIL_FRAME_SANDBOX,
   MAX_EMAIL_FRAME_HEIGHT,
@@ -17,26 +13,16 @@ import {
   sanitizeEmailHtml,
   wrapEmailDocument,
 } from "../../lib/mail/emailHtmlSanitizer";
-import { useToastStore } from "../../lib/state/toastStore";
 
 function EmailFrame({ sanitized }: { sanitized: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const observerRef = useRef<ResizeObserver | null>(null);
-  const preferencesRef = useRef<Preferences | undefined>(undefined);
   const [loadingImages, setLoadingImages] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [hasRemoteImages, setHasRemoteImages] = useState(false);
   const [frameHeight, setFrameHeight] = useState(80);
-  const { data: preferences } = useQuery({
-    queryKey: ["preferences"],
-    queryFn: getPreferences,
-  });
-  const showToast = useToastStore((state) => state.show);
+  useQuery({ queryKey: ["preferences"], queryFn: getPreferences });
   const srcDoc = useMemo(() => wrapEmailDocument(sanitized), [sanitized]);
-
-  useEffect(() => {
-    preferencesRef.current = preferences;
-  }, [preferences]);
 
   useEffect(() => () => observerRef.current?.disconnect(), []);
 
@@ -46,25 +32,15 @@ function EmailFrame({ sanitized }: { sanitized: string }) {
 
     setHasRemoteImages(blockRemoteImages(doc));
 
-    doc.querySelectorAll("a[href]").forEach((anchor) => {
+    doc.querySelectorAll("a[href], area[href]").forEach((anchor) => {
+      anchor.setAttribute("target", "_blank");
       anchor.setAttribute("rel", "noreferrer noopener");
     });
     const openLink = (event: Event) => {
-      const anchor = (event.target as Element | null)?.closest?.("a[href]");
+      const anchor = (event.target as Element | null)?.closest?.("a[href], area[href]");
       if (!anchor) return;
       event.preventDefault();
-      const href = anchor.getAttribute("href")?.trim() ?? "";
-      const mailto = parseMailto(href);
-      if (mailto) {
-        useComposeStore.getState().open(mailto);
-        return;
-      }
-      if (!/^https?:\/\//i.test(href)) return;
-      const target =
-        preferencesRef.current?.stripTrackingParamsEnabled !== false
-          ? stripTrackingParameters(href)
-          : href;
-      void openUrl(target).catch(() => showToast("Could not open that link."));
+      openEmailLink(anchor.getAttribute("href") ?? "");
     };
     doc.addEventListener("click", openLink);
     doc.addEventListener("auxclick", openLink);

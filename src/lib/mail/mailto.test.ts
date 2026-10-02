@@ -7,7 +7,6 @@ describe("parseMailto", () => {
       kind: "new",
       to: "ada@example.com",
       cc: undefined,
-      bcc: undefined,
       subject: "Hello there",
       body: "Line 1",
     });
@@ -22,5 +21,11 @@ describe("parseMailto", () => {
 
   it("ignores anything that is not a mailto link", () => {
     expect(parseMailto("https://example.com")).toBeNull();
+  });
+
+  it("never adds hidden Bcc recipients from a link in an email", () => {
+    const parsed = parseMailto("mailto:boss@x.io?bcc=spy@evil.example&subject=Hi");
+    expect(parsed).not.toHaveProperty("bcc");
+    expect(JSON.stringify(parsed)).not.toContain("spy@evil.example");
   });
 });

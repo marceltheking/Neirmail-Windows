@@ -1,5 +1,8 @@
 import type { ComposeDefaults } from "../state/composeStore";
 
+const MAX_SUBJECT_CHARS = 500;
+const MAX_BODY_CHARS = 20_000;
+
 export function parseMailto(href: string): ComposeDefaults | null {
   if (!/^mailto:/i.test(href)) return null;
   try {
@@ -14,9 +17,8 @@ export function parseMailto(href: string): ComposeDefaults | null {
       kind: "new",
       to: to[0] ?? "",
       cc: cc || undefined,
-      bcc: params.get("bcc") || undefined,
-      subject: params.get("subject") ?? "",
-      body: params.get("body") ?? "",
+      subject: (params.get("subject") ?? "").slice(0, MAX_SUBJECT_CHARS),
+      body: (params.get("body") ?? "").slice(0, MAX_BODY_CHARS),
     };
   } catch {
     return null;

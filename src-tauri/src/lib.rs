@@ -4,6 +4,7 @@ mod crypto;
 mod error;
 mod http;
 mod state;
+mod window;
 mod ws;
 
 use cache::seal::CacheCipher;
@@ -29,6 +30,7 @@ pub fn run() {
         .manage(AppState::new())
         .manage(WsHandle(Mutex::new(None)))
         .setup(|app| {
+            window::create_main_window(app)?;
             let show_item = MenuItem::with_id(app, "show", "Show Neir Mail", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let tray_menu = Menu::with_items(app, &[&show_item, &quit_item])?;

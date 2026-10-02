@@ -19,6 +19,7 @@ import { ApiError } from "../../lib/api/types";
 import { formatBytes } from "../../lib/format/bytes";
 import { useMailStore } from "../../lib/state/mailStore";
 import { queueOutgoing } from "../../lib/mail/outbox";
+import { releaseStagedAttachments } from "../../lib/mail/staging";
 import { recipientValidationError } from "../../lib/mail/recipients";
 import {
   useComposeStore,
@@ -277,7 +278,10 @@ export function ComposeWindow() {
       keep: async () => {
         await saveDraft(snapshot, snapshotAttachments);
       },
-      onSent: () => showToast("Message sent"),
+      onSent: () => {
+        showToast("Message sent");
+        releaseStagedAttachments();
+      },
       onFailed: (cause) => {
         const failedDraft = reopened;
         const compose = useComposeStore.getState();
@@ -313,6 +317,7 @@ export function ComposeWindow() {
       refreshMailQueries(result.id);
       showToast(`Scheduled for ${date.toLocaleString()}`);
       close();
+      releaseStagedAttachments();
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Could not schedule that message.");
     } finally {
@@ -324,7 +329,10 @@ export function ComposeWindow() {
     <Modal
       title={composeTitle(defaults)}
       size="xl"
-      onClose={close}
+      onClose={() => {
+        close();
+        releaseStagedAttachments();
+      }}
       onRequestClose={canClose}
       preventClose={busy}
     >
@@ -523,7 +531,10 @@ export function ComposeWindow() {
           description="Your unsaved changes and selected attachments will be removed."
           confirmLabel="Discard message"
           onCancel={() => setConfirmDiscard(false)}
-          onConfirm={close}
+          onConfirm={() => {
+            close();
+            releaseStagedAttachments();
+          }}
           detail="This cannot be undone unless you saved the message as a draft."
         />
       )}

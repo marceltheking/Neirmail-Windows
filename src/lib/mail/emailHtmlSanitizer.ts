@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 
-export const EMAIL_FRAME_SANDBOX = "allow-same-origin";
+export const EMAIL_FRAME_SANDBOX = "allow-same-origin allow-popups";
 export const MAX_EMAIL_FRAME_HEIGHT = 60000;
 
 const FORBIDDEN_TAGS = [
