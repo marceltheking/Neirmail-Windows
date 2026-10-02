@@ -1,0 +1,89 @@
+name: Release NeirMail
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: Release notes
+        required: false
+        default: Download the installer for your platform from the assets below.
+        type: string
+      prerelease:
+        description: Publish as a prerelease
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: neirmail-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run version:check
+      - run: npm run check
+
+  release:
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ubuntu-22.04
+            args: ""
+            rust_targets: ""
+          - platform: windows-latest
+            args: ""
+            rust_targets: ""
+          - platform: macos-latest
+            args: --target aarch64-apple-darwin
+            rust_targets: aarch64-apple-darwin
+          - platform: macos-15-intel
+            args: --target x86_64-apple-darwin
+            rust_targets: x86_64-apple-darwin
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: sudo apt-get update && sudo apt-get install -y desktop-file-utils libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
+        with:
+          toolchain: stable
+          targets: ${{ matrix.rust_targets }}
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+        with:
+          workspaces: ./src-tauri -> target
+      - run: npm ci
+      - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: v__VERSION__
+          releaseName: NeirMail v__VERSION__
+          releaseBody: ${{ inputs.release_notes }}
+          releaseDraft: false
+          prerelease: ${{ inputs.prerelease }}
+          generateReleaseNotes: true
+          uploadUpdaterJson: true
+          uploadUpdaterSignatures: true
+          updaterJsonPreferNsis: true
+          retryAttempts: 2
+          args: ${{ matrix.args }}

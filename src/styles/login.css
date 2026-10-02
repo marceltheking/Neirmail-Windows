@@ -1,0 +1,166 @@
+.login-screen {
+  --login-veil: color-mix(in srgb, var(--bg) 78%, transparent);
+  --login-veil-edge: color-mix(in srgb, var(--bg) 42%, transparent);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 45%, var(--login-veil) 0%, var(--login-veil-edge) 100%),
+    url("/forest-dark.png") 30% 70% / cover no-repeat,
+    var(--bg);
+}
+[data-theme="light"] .login-screen {
+  --login-veil: color-mix(in srgb, var(--bg) 92%, transparent);
+  --login-veil-edge: color-mix(in srgb, var(--bg) 70%, transparent);
+}
+.login-corner {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 1;
+}
+.login-center {
+  min-height: 0;
+  padding: 48px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  overflow-y: auto;
+}
+.login-panel {
+  width: min(372px, 100%);
+  padding: 34px 32px 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow-lg);
+  animation: login-in 260ms var(--ease-out);
+}
+.login-panel .brand-mark {
+  height: 24px;
+  margin-bottom: 30px;
+  align-self: flex-start;
+}
+.login-heading {
+  margin-bottom: 24px;
+}
+.login-heading h1 {
+  margin: 0 0 6px;
+  color: var(--text-bright);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.login-heading p {
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.login-panel .ui-input {
+  letter-spacing: 0.08em;
+}
+.login-panel .ui-input-shell .ui-icon-button {
+  margin-right: 3px;
+}
+.login-panel > .ui-button {
+  width: 100%;
+  margin-top: 14px;
+}
+.login-text-link {
+  margin-top: 16px;
+  padding: 2px 0;
+  align-self: center;
+  border: 0;
+  color: var(--text-dim);
+  background: none;
+  font: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+.login-text-link:hover {
+  color: var(--accent-text);
+}
+.login-signup {
+  width: min(372px, 100%);
+  padding: 13px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-dim);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  animation: login-in 260ms 60ms var(--ease-out) backwards;
+  transition:
+    border-color var(--duration-fast) ease,
+    background var(--duration-fast) ease;
+}
+.login-signup strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.login-signup svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.login-signup:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+.login-signup:hover svg {
+  transform: translate(1px, -1px);
+}
+.login-legal {
+  padding: 0 16px 18px;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+}
+.login-legal button {
+  padding: 0;
+  border: 0;
+  color: var(--text-faint);
+  background: none;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+.login-legal button:hover {
+  color: var(--text-bright);
+}
+@keyframes login-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (max-width: 420px) {
+  .login-panel {
+    padding: 28px 20px 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-panel,
+  .login-signup {
+    animation: none;
+  }
+}

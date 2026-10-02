@@ -1,0 +1,7 @@
+{
+  "version": "0.1.0",
+  "tag": "v0.1.0",
+  "release": "https://github.com/marceltheking/Neirmail-Windows/releases/tag/v0.1.0",
+  "githubManifest": "https://github.com/marceltheking/Neirmail-Windows/releases/latest/download/latest.json",
+  "updaterManifest": "https://neir.io/downloads/latest.json"
+}

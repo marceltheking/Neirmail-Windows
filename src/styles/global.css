@@ -1,0 +1,91 @@
+@import "/vendor/fonts/jetbrains-mono.css";
+@import "./tokens.css";
+@import "./components.css";
+@import "./shell.css";
+@import "./layout.css";
+@import "./login.css";
+@import "./shared.css";
+@import "./mail.css";
+@import "./compose.css";
+@import "./settings.css";
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+code,
+pre,
+kbd,
+[data-mono],
+.app-titlebar-copy,
+.wm-storage,
+.wm-row-date,
+.wm-read-sender-card time {
+  font-family: var(--font-mono);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 2px;
+  background: var(--border-strong);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+  background-clip: padding-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-light);
+  color: var(--accent-text);
+}

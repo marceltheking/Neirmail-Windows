@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Neir Mail",
+  "version": "0.1.0",
+  "identifier": "io.neir.neirmail",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Neir Mail",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 860,
+        "minHeight": 560,
+        "backgroundColor": "#0d0e0d",
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' data: asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'wasm-unsafe-eval'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": true,
+    "macOS": {
+      "signingIdentity": "-"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU2N0UxMzI5MDQ2QUI1MzQKUldRMHRXb0VLUk4rVnQ1UWYrNXZNWXpXd1hWNlk3MkpuOWdZSUwzWVhEU2Z4YlRmNSs3MmtxSDEK",
+      "endpoints": [
+        "https://github.com/marceltheking/Neirmail-Windows/releases/latest/download/latest.json",
+        "https://neir.io/downloads/latest.json"
+      ]
+    }
+  }
+}

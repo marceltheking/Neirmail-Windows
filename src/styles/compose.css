@@ -1,0 +1,299 @@
+.modal-box-xl {
+  width: min(860px, calc(100vw - 48px));
+  max-width: 860px;
+  max-height: min(820px, calc(100dvh - 48px));
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-box-xl .modal-heading {
+  flex: none;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.compose-modal {
+  height: min(620px, calc(100dvh - 170px));
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.compose-addresses {
+  padding: 6px 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.compose-address-row {
+  min-height: 45px;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.compose-address-row:last-child,
+.compose-secondary-addresses .compose-address-row:last-child {
+  border-bottom: 0;
+}
+
+.compose-address-row > span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.compose-address-row input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 0;
+  border: 0;
+  outline: 0;
+  color: var(--text-bright);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+}
+
+.compose-address-row input::placeholder,
+.compose-editor::placeholder {
+  color: var(--text-ghost);
+}
+
+.compose-address-row > button {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 3px;
+  color: var(--text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    transform 120ms var(--ease-out);
+}
+
+.compose-address-row > button:hover {
+  color: var(--text-bright);
+  background: var(--surface-hover);
+}
+
+.compose-address-row > button:active {
+  transform: scale(0.97);
+}
+
+.compose-editor {
+  min-height: 96px;
+  flex: 1 1 0;
+  padding: 22px;
+  border: 0;
+  outline: 0;
+  resize: none;
+  color: var(--text-primary);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.compose-attachments {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.compose-attachment-chip {
+  max-width: 260px;
+  min-height: 34px;
+  padding: 4px 5px 4px 10px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-dim);
+  background: var(--input-bg);
+  font-size: 9px;
+}
+
+.compose-attachment-chip > svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--accent-text);
+}
+
+.compose-attachment-chip > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compose-attachment-chip > small {
+  flex: none;
+  color: var(--text-faint);
+  font-size: 9px;
+}
+
+.compose-attachment-chip .ui-icon-button {
+  width: 25px;
+  height: 25px;
+  flex: none;
+}
+
+.compose-schedule-panel {
+  margin: 0 20px 14px;
+  padding: 15px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.75fr);
+  gap: 14px 20px;
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface-sunken));
+}
+
+.compose-schedule-panel > div:first-child {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.compose-schedule-panel > div:first-child > svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--accent-text);
+}
+
+.compose-schedule-panel strong,
+.compose-schedule-panel label > span {
+  color: var(--text-bright);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.compose-schedule-panel p {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 8.5px;
+  line-height: 1.5;
+}
+
+.compose-schedule-panel label {
+  display: grid;
+  gap: 6px;
+}
+
+.compose-schedule-panel input {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  outline: 0;
+  color: var(--text-bright);
+  color-scheme: dark;
+  background: var(--input-bg);
+  font: inherit;
+  font-size: 10px;
+}
+
+[data-theme="light"] .compose-schedule-panel input {
+  color-scheme: light;
+}
+
+.compose-schedule-panel input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.compose-schedule-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.compose-error {
+  margin: 0 20px 12px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger-text) 28%, var(--border));
+  border-radius: 4px;
+  color: var(--danger-text);
+  background: var(--danger-bg);
+  font-size: 9.5px;
+}
+
+.compose-footer {
+  min-height: 62px;
+  padding: 11px 16px 11px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--surface-sunken);
+}
+
+.compose-primary-actions,
+.compose-utility-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.compose-utility-actions .ui-icon-button:last-child {
+  color: var(--danger-text);
+}
+
+@media (max-width: 720px) {
+  .modal-box-xl {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .compose-modal {
+    min-height: calc(100dvh - 106px);
+  }
+
+  .compose-schedule-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .compose-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .compose-primary-actions,
+  .compose-utility-actions {
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compose-address-row > button:active {
+    transform: none;
+  }
+}
+
+.compose-from-row .ui-select-trigger {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 0 8px 0 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-bright);
+  font-size: 12px;
+}
