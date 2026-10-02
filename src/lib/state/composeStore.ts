@@ -15,6 +15,7 @@ export interface ComposeDefaults {
   bcc?: string;
   subject?: string;
   body?: string;
+  html?: string;
   inReplyTo?: string;
   draftId?: string;
   fromMailboxId?: string;

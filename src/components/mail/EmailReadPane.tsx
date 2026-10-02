@@ -218,6 +218,7 @@ export function EmailReadPane({ emailId }: { emailId: string }) {
         bcc: email.bccAddresses.join(", "),
         subject: email.subject,
         body: result.text || (result.html ? htmlToText(result.html) : ""),
+        html: result.html ?? undefined,
         inReplyTo: email.inReplyTo ?? undefined,
         draftId: email.id,
         fromMailboxId: email.mailboxId,

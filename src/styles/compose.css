@@ -297,3 +297,35 @@
   color: var(--text-bright);
   font-size: 12px;
 }
+
+.compose-editor-html {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: #fff;
+}
+
+.compose-format-bar {
+  padding: 7px 22px;
+  border-bottom: 1px solid var(--input-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.compose-format-bar button {
+  padding: 4px 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  color: var(--text-dim);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.compose-format-bar button:hover:not(:disabled) {
+  color: var(--text-primary);
+}

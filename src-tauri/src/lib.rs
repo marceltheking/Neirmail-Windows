@@ -94,6 +94,7 @@ pub fn run() {
             commands::attachments::fetch_remote_image,
             commands::sender_icons::fetch_sender_icon,
             commands::compose::pick_attachments,
+            commands::compose::pick_html_file,
             commands::compose::send_compose,
             commands::compose::save_draft,
             commands::compose::schedule_send,

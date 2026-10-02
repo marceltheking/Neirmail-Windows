@@ -25,3 +25,7 @@ export function scheduleSend(
 export function pickAttachments(): Promise<string[]> {
   return callCommand<string[]>("pick_attachments");
 }
+
+export function pickHtmlFile(): Promise<string | null> {
+  return callCommand<string | null>("pick_html_file");
+}

@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   CalendarBlank,
   Clock,
+  Code,
   FloppyDisk,
   PaperPlaneTilt,
   Paperclip,
@@ -11,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   pickAttachments,
+  pickHtmlFile,
   sendCompose,
   saveDraft,
   scheduleSend,
@@ -21,6 +23,12 @@ import { useMailStore } from "../../lib/state/mailStore";
 import { queueOutgoing } from "../../lib/mail/outbox";
 import { releaseStagedAttachments } from "../../lib/mail/staging";
 import { recipientValidationError } from "../../lib/mail/recipients";
+import {
+  cleanComposeHtml,
+  htmlDocumentBody,
+  isRichHtml,
+  plainTextToHtml,
+} from "../../lib/mail/composeHtml";
 import {
   useComposeStore,
   type ComposeDefaults,
@@ -33,6 +41,7 @@ import { ConfirmationDialog } from "../shared/ConfirmationDialog";
 import { Button } from "../ui/Button";
 import { IconButton } from "../ui/IconButton";
 import { Select } from "../ui/Select";
+import { FormattedEditor, type FormattedEditorHandle } from "./FormattedEditor";
 
 const UNDO_SEND_DELAY_MS = 5000;
 const MAX_ATTACHMENTS = 10;
@@ -68,6 +77,7 @@ function composeSignature({
   bcc,
   subject,
   body,
+  html,
   attachmentPaths,
   keptAttachments,
 }: {
@@ -76,11 +86,16 @@ function composeSignature({
   bcc: string;
   subject: string;
   body: string;
+  html?: string;
   attachmentPaths: string[];
   keptAttachments: KeptAttachment[];
 }): string {
   const kept = keptAttachments.map((attachment) => attachment.id);
-  return JSON.stringify([to, cc, bcc, subject, body, attachmentPaths, kept]);
+  return JSON.stringify([to, cc, bcc, subject, body, html ?? null, attachmentPaths, kept]);
+}
+
+function wrapHtmlBody(bodyHtml: string): string {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${bodyHtml}</body></html>`;
 }
 
 export function ComposeWindow() {
@@ -95,6 +110,13 @@ export function ComposeWindow() {
   const [bcc, setBcc] = useState(defaults.bcc ?? "");
   const [subject, setSubject] = useState(defaults.subject ?? "");
   const [body, setBody] = useState(defaults.body ?? "");
+  const [htmlSeed, setHtmlSeed] = useState<string | null>(() =>
+    defaults.html ? htmlDocumentBody(defaults.html) : null,
+  );
+  const editorRef = useRef<FormattedEditorHandle>(null);
+  const lastComposedRef = useRef<{ html: string; text: string } | null>(null);
+  const calibratedRef = useRef(!defaults.html);
+  const [confirmPlain, setConfirmPlain] = useState(false);
   const [attachmentPaths, setAttachmentPaths] = useState<string[]>(defaults.attachmentPaths ?? []);
   const [keptAttachments, setKeptAttachments] = useState<KeptAttachment[]>(
     defaults.keptAttachments ?? [],
@@ -122,6 +144,7 @@ export function ComposeWindow() {
       bcc: defaults.bcc ?? "",
       subject: defaults.subject ?? "",
       body: defaults.body ?? "",
+      html: defaults.html,
       attachmentPaths: defaults.attachmentPaths ?? [],
       keptAttachments: defaults.keptAttachments ?? [],
     }),
@@ -133,13 +156,15 @@ export function ComposeWindow() {
       : (primary?.id ?? "");
 
   useEffect(() => {
+    const content = currentContent();
     latest.current = {
       ...defaults,
       to,
       cc,
       bcc,
       subject,
-      body,
+      body: content.body,
+      html: content.htmlBody,
       draftId,
       fromMailboxId: fromChoice || undefined,
       attachmentPaths,
@@ -157,10 +182,79 @@ export function ComposeWindow() {
   useEffect(
     () => () => {
       const compose = useComposeStore.getState();
-      if (compose.isOpen) useComposeStore.setState({ defaults: latest.current });
+      if (!compose.isOpen) return;
+      const composed = lastComposedRef.current;
+      useComposeStore.setState({
+        defaults:
+          composed && latest.current.html !== undefined
+            ? { ...latest.current, body: composed.text, html: composed.html }
+            : latest.current,
+      });
     },
     [],
   );
+
+  function currentContent(): { body: string; htmlBody?: string } {
+    if (htmlSeed === null) return { body };
+    const composed = editorRef.current?.read() ?? lastComposedRef.current;
+    if (composed) {
+      lastComposedRef.current = composed;
+      return { body: composed.text, htmlBody: composed.html };
+    }
+    return { body, htmlBody: wrapHtmlBody(htmlSeed) };
+  }
+
+  function enterFormatted(raw: string, selection?: { start: number; end: number }) {
+    const cleaned = cleanComposeHtml(raw);
+    if (!cleaned.html.trim()) {
+      showToast("That HTML has no email content in it.");
+      return;
+    }
+    if (cleaned.removedImages) reportRemovedImages(cleaned.removedImages);
+    if (htmlSeed !== null) {
+      editorRef.current?.insert(raw);
+      return;
+    }
+    const start = selection?.start ?? body.length;
+    const end = selection?.end ?? body.length;
+    setHtmlSeed(
+      plainTextToHtml(body.slice(0, start)) + cleaned.html + plainTextToHtml(body.slice(end)),
+    );
+  }
+
+  function reportRemovedImages(count: number) {
+    showToast(
+      `${count} image${count === 1 ? " points" : "s point"} to a file on your computer and could not be included. Host ${count === 1 ? "it" : "them"} online and link by URL.`,
+    );
+  }
+
+  function handleBodyPaste(event: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const html = event.clipboardData.getData("text/html");
+    if (!html || !isRichHtml(html)) return;
+    event.preventDefault();
+    enterFormatted(html, {
+      start: event.currentTarget.selectionStart,
+      end: event.currentTarget.selectionEnd,
+    });
+  }
+
+  async function insertHtmlFile() {
+    try {
+      const html = await pickHtmlFile();
+      if (html !== null) enterFormatted(html);
+    } catch (cause) {
+      showToast(cause instanceof ApiError ? cause.message : "That HTML file could not be read.");
+    }
+  }
+
+  function switchToPlainText() {
+    const composed = currentContent();
+    setBody(composed.body);
+    setHtmlSeed(null);
+    lastComposedRef.current = null;
+    setConfirmPlain(false);
+    window.setTimeout(() => bodyRef.current?.focus(), 0);
+  }
 
   function refreshMailQueries(changedId?: string) {
     queryClient.invalidateQueries({ queryKey: ["emails"] });
@@ -194,12 +288,14 @@ export function ComposeWindow() {
   }
 
   function fields() {
+    const content = currentContent();
     return {
       to: to.trim(),
       cc: cc.trim() || undefined,
       bcc: bcc.trim() || undefined,
       subject: subject.trim(),
-      body,
+      body: content.body,
+      htmlBody: content.htmlBody,
       inReplyTo: defaults.inReplyTo,
       draftId,
       fromMailboxId: fromChoice && fromChoice !== primary?.id ? fromChoice : undefined,
@@ -210,7 +306,17 @@ export function ComposeWindow() {
   }
 
   function currentSignature(): string {
-    return composeSignature({ to, cc, bcc, subject, body, attachmentPaths, keptAttachments });
+    const content = currentContent();
+    return composeSignature({
+      to,
+      cc,
+      bcc,
+      subject,
+      body: content.body,
+      html: content.htmlBody,
+      attachmentPaths,
+      keptAttachments,
+    });
   }
 
   function validateRecipients(): boolean {
@@ -254,6 +360,7 @@ export function ComposeWindow() {
     const reopened = {
       ...defaults,
       ...snapshot,
+      html: snapshot.htmlBody,
       attachmentPaths: snapshotAttachments,
       keptAttachments,
     };
@@ -410,15 +517,43 @@ export function ComposeWindow() {
             />
           </label>
         </div>
-        <textarea
-          ref={bodyRef}
-          className="compose-editor"
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-          placeholder="Write your message"
-          aria-label="Message body"
-          disabled={busy}
-        />
+        {htmlSeed === null ? (
+          <textarea
+            ref={bodyRef}
+            className="compose-editor"
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            onPaste={handleBodyPaste}
+            placeholder="Write your message"
+            aria-label="Message body"
+            disabled={busy}
+          />
+        ) : (
+          <>
+            <div className="compose-format-bar">
+              <span>Formatted email. Images must be hosted online.</span>
+              <button type="button" disabled={busy} onClick={() => setConfirmPlain(true)}>
+                Switch to plain text
+              </button>
+            </div>
+            <FormattedEditor
+              key={htmlSeed}
+              ref={editorRef}
+              initialHtml={htmlSeed}
+              disabled={busy}
+              onImagesRemoved={reportRemovedImages}
+              onSnapshot={(composed) => {
+                lastComposedRef.current = composed;
+              }}
+              onReady={(composed) => {
+                lastComposedRef.current = composed;
+                if (calibratedRef.current) return;
+                calibratedRef.current = true;
+                setSavedSignature(currentSignature());
+              }}
+            />
+          </>
+        )}
         {keptAttachments.length + attachmentPaths.length > 0 && (
           <div className="compose-attachments" aria-label="Attachments">
             {keptAttachments.map((attachment) => (
@@ -510,6 +645,12 @@ export function ComposeWindow() {
               disabled={busy}
               onClick={addAttachments}
             />
+            <IconButton
+              label="Insert an HTML email file"
+              icon={<Code />}
+              disabled={busy}
+              onClick={() => void insertHtmlFile()}
+            />
             <Button
               variant="ghost"
               size="sm"
@@ -525,6 +666,15 @@ export function ComposeWindow() {
           </div>
         </footer>
       </div>
+      {confirmPlain && (
+        <ConfirmationDialog
+          title="Switch to plain text?"
+          description="The layout, images and buttons will be removed and only the text will be kept."
+          confirmLabel="Switch to plain text"
+          onCancel={() => setConfirmPlain(false)}
+          onConfirm={switchToPlainText}
+        />
+      )}
       {confirmDiscard && (
         <ConfirmationDialog
           title="Discard this message?"

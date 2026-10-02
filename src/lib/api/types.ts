@@ -179,6 +179,7 @@ export interface ComposeFields {
   bcc?: string;
   subject?: string;
   body?: string;
+  htmlBody?: string;
   inReplyTo?: string;
   draftId?: string;
   scheduledFor?: string;

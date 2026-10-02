@@ -6,6 +6,8 @@ use serde_json::Value;
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::DialogExt;
 
+const MAX_HTML_FILE_BYTES: u64 = 5 * 1024 * 1024;
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ComposeFieldsPayload {
@@ -14,6 +16,7 @@ pub struct ComposeFieldsPayload {
     bcc: Option<String>,
     subject: Option<String>,
     body: Option<String>,
+    html_body: Option<String>,
     in_reply_to: Option<String>,
     draft_id: Option<String>,
     scheduled_for: Option<String>,
@@ -29,6 +32,7 @@ impl From<ComposeFieldsPayload> for ComposeFields {
             bcc: payload.bcc,
             subject: payload.subject,
             body: payload.body,
+            html_body: payload.html_body,
             in_reply_to: payload.in_reply_to,
             draft_id: payload.draft_id,
             scheduled_for: payload.scheduled_for,
@@ -103,4 +107,36 @@ pub async fn pick_attachments(
     }
     state.remember_picked_files(&paths);
     Ok(paths)
+}
+
+#[tauri::command]
+pub async fn pick_html_file(app: AppHandle) -> Result<Option<String>, ApiError> {
+    let picked = tokio::task::spawn_blocking(move || {
+        app.dialog()
+            .file()
+            .add_filter("Email HTML", &["html", "htm"])
+            .blocking_pick_file()
+    })
+    .await
+    .map_err(|err| ApiError::transport(err.to_string()))?;
+    let Some(file) = picked else {
+        return Ok(None);
+    };
+    let path = file
+        .into_path()
+        .map_err(|err| ApiError::transport(err.to_string()))?;
+    let metadata = tokio::fs::metadata(&path)
+        .await
+        .map_err(|err| ApiError::transport(err.to_string()))?;
+    if !metadata.is_file() || metadata.len() > MAX_HTML_FILE_BYTES {
+        return Err(ApiError {
+            status: 413,
+            code: Some("HTML_FILE_TOO_LARGE".to_string()),
+            message: "Choose an HTML file of 5 MB or less.".to_string(),
+        });
+    }
+    let bytes = tokio::fs::read(&path)
+        .await
+        .map_err(|err| ApiError::transport(err.to_string()))?;
+    Ok(Some(String::from_utf8_lossy(&bytes).into_owned()))
 }

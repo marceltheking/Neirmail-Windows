@@ -17,6 +17,7 @@ pub struct ComposeFields {
     pub bcc: Option<String>,
     pub subject: Option<String>,
     pub body: Option<String>,
+    pub html_body: Option<String>,
     pub in_reply_to: Option<String>,
     pub draft_id: Option<String>,
     pub scheduled_for: Option<String>,
@@ -51,6 +52,7 @@ pub async fn submit_compose(
     form = append_text(form, "bcc", fields.bcc);
     form = append_text(form, "subject", fields.subject);
     form = append_text(form, "body", fields.body);
+    form = append_text(form, "htmlBody", fields.html_body);
     form = append_text(form, "inReplyTo", fields.in_reply_to);
     form = append_text(form, "draftId", fields.draft_id);
     form = append_text(form, "scheduledFor", fields.scheduled_for);

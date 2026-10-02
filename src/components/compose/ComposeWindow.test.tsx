@@ -186,4 +186,52 @@ describe("ComposeWindow", () => {
     const input = document.querySelector<HTMLInputElement>('input[type="datetime-local"]')!;
     expect(new Date(input.value).getTime()).toBe(when.getTime());
   });
+
+  it("turns a pasted designed email into a formatted message and saves its HTML", async () => {
+    compose.saveDraft.mockResolvedValue({ id: "draft-9", created: true });
+    useComposeStore.getState().open({ kind: "new", to: "a@example.com" });
+    await renderCompose();
+    const editor = document.querySelector<HTMLTextAreaElement>(".compose-editor")!;
+    const pasted = new Event("paste", { bubbles: true, cancelable: true });
+    Object.assign(pasted, {
+      clipboardData: {
+        getData: (type: string) =>
+          type === "text/html"
+            ? '<table><tr><td><h1>Sale</h1><a href="https://shop.example">Shop</a><script>x()</script></td></tr></table>'
+            : "Sale Shop",
+      },
+    });
+    await act(async () => {
+      editor.dispatchEvent(pasted);
+    });
+    expect(pasted.defaultPrevented).toBe(true);
+    expect(document.querySelector(".compose-format-bar")).not.toBeNull();
+    expect(document.querySelector("iframe.compose-editor-html")).not.toBeNull();
+
+    const save = [...document.querySelectorAll("button")].find(
+      (button) => button.textContent === "Save draft",
+    )!;
+    await act(async () => save.click());
+    const [fields] = compose.saveDraft.mock.calls[0];
+    expect(fields.htmlBody).toContain("<table>");
+    expect(fields.htmlBody).toContain('href="https://shop.example"');
+    expect(fields.htmlBody).not.toContain("<script");
+  });
+
+  it("leaves ordinary pasted text in the plain editor", async () => {
+    useComposeStore.getState().open({ kind: "new" });
+    await renderCompose();
+    const editor = document.querySelector<HTMLTextAreaElement>(".compose-editor")!;
+    const pasted = new Event("paste", { bubbles: true, cancelable: true });
+    Object.assign(pasted, {
+      clipboardData: {
+        getData: (type: string) => (type === "text/html" ? "<span>hi</span>" : "hi"),
+      },
+    });
+    await act(async () => {
+      editor.dispatchEvent(pasted);
+    });
+    expect(pasted.defaultPrevented).toBe(false);
+    expect(document.querySelector(".compose-format-bar")).toBeNull();
+  });
 });
