@@ -29,6 +29,14 @@
 
 <br>
 
+<sub><b>SPONSORED BY</b></sub>
+
+<a href="https://sageswap.io/"><img src=".github/assets/sponsor-sageswap.jpg" alt="SageSwap.io: swap privately. No KYC. No data collection." width="760"></a>
+
+<sub>Neir is kept independent by its sponsors. <a href="https://telegram.me/neir_io">Advertise here</a>.</sub>
+
+<br><br>
+
 <img src=".github/assets/app-preview.png" alt="Neir Mail inbox with a message open" width="900">
 
 </div>
@@ -74,16 +82,6 @@
 
 > [!NOTE]
 > The app signs in to existing accounts. Creating an account or recovering a lost Account Key happens on the web at [neir.io/signup](https://neir.io/signup) and [neir.io/recovery](https://neir.io/recovery).
-
-## Sponsor
-
-<div align="center">
-
-<a href="https://sageswap.io/"><img src=".github/assets/sponsor-sageswap.jpg" alt="SageSwap.io: swap privately. No KYC. No data collection." width="760"></a>
-
-<sub>Neir is kept independent by its sponsors. Want to be featured here? <a href="https://telegram.me/neir_io">Get in touch</a>.</sub>
-
-</div>
 
 ## How it works
 
