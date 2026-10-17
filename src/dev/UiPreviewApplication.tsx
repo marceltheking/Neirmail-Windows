@@ -65,6 +65,17 @@ const folders: Folder[] = [
 ];
 
 const emails: EmailListItem[] = [
+  {
+    ...previewEmail(
+      "mail-0",
+      "Neir System",
+      "hello@neir.io",
+      "SageSwap.io: swap privately, no KYC",
+      false,
+    ),
+    isPinned: true,
+    linkUrl: "https://sageswap.io/",
+  },
   previewEmail("mail-2", "Neir System", "hello@neir.io", "Your encrypted export is ready", false),
   previewEmail(
     "mail-1",

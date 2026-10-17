@@ -1050,6 +1050,27 @@
   vertical-align: -2px;
 }
 
+.wm-row-sponsored {
+  margin-right: 8px;
+  padding: 0 5px;
+  border: 1px solid var(--amber);
+  border-radius: 2px;
+  color: var(--amber);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 15px;
+}
+.wm-row.sponsored .wm-row-sender {
+  font-weight: 600;
+}
+.wm-row.sponsored .wm-row-date svg {
+  width: 13px;
+  height: 13px;
+  vertical-align: -2px;
+}
+
 .wm-row-badge {
   margin-right: 8px;
   padding: 1px 5px;

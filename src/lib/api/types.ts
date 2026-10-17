@@ -112,6 +112,7 @@ export interface EmailListItem {
   isRead: boolean;
   isStarred: boolean;
   isPinned: boolean;
+  linkUrl?: string | null;
   hasAttachments: boolean;
   scheduledFor: string | null;
   openTrackingEnabled: boolean;
@@ -151,6 +152,7 @@ export interface EmailDetail {
   isRead: boolean;
   isStarred: boolean;
   isArchived: boolean;
+  isPinned?: boolean;
   receivedAt: string;
   deliveryStatus: string | null;
   deliveryError: string | null;

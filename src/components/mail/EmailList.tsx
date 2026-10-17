@@ -3,9 +3,10 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { listEmails, batchAction } from "../../lib/api/endpoints/emails";
 import { emptyFolder } from "../../lib/api/endpoints/folders";
 import { forgetCachedEmails } from "../../lib/cache/localCache";
-import type { Folder } from "../../lib/api/types";
+import type { EmailListItem, Folder } from "../../lib/api/types";
 import { navListParams, navQueryKey } from "../../lib/mail/navigation";
 import { buildUndo } from "../../lib/mail/undo";
+import { openSponsoredLink, sponsoredHost } from "../../lib/mail/sponsored";
 import { useMailStore } from "../../lib/state/mailStore";
 import { useToastStore } from "../../lib/state/toastStore";
 import { EmailListRow } from "./EmailListRow";
@@ -135,7 +136,7 @@ export function EmailList({ folders }: EmailListProps) {
     onError: () => showToast("Could not empty that folder."),
   });
 
-  const ids = emails.map((email) => email.id);
+  const ids = emails.filter((email) => !email.isPinned).map((email) => email.id);
   const allSelected = ids.length > 0 && ids.every((id) => selectedIds.has(id));
   const someSelected = !allSelected && ids.some((id) => selectedIds.has(id));
 
@@ -147,14 +148,27 @@ export function EmailList({ folders }: EmailListProps) {
   }
 
   function step(delta: number) {
-    if (emails.length === 0) return;
-    const index = emails.findIndex((email) => email.id === selectedEmailId);
-    const next = index === -1 ? (delta > 0 ? 0 : emails.length - 1) : index + delta;
-    if (next < 0 || next >= emails.length) return;
-    openEmail(emails[next].id);
+    const readable = emails.filter((email) => !sponsoredHost(email));
+    if (readable.length === 0) return;
+    const index = readable.findIndex((email) => email.id === selectedEmailId);
+    const next = index === -1 ? (delta > 0 ? 0 : readable.length - 1) : index + delta;
+    if (next < 0 || next >= readable.length) return;
+    openEmail(readable[next].id);
     document
-      .querySelector(`[data-email-id="${emails[next].id}"]`)
+      .querySelector(`[data-email-id="${readable[next].id}"]`)
       ?.scrollIntoView({ block: "nearest" });
+  }
+
+  function open(email: EmailListItem) {
+    if (!openSponsoredLink(email)) {
+      openEmail(email.id);
+      return;
+    }
+    if (!email.isRead) {
+      void batchAction([email.id], "read")
+        .then(refreshAll)
+        .catch(() => undefined);
+    }
   }
 
   useShortcuts({
@@ -246,7 +260,7 @@ export function EmailList({ folders }: EmailListProps) {
                 outgoing={nav.kind === "sent" || nav.kind === "drafts"}
                 showSeen={nav.kind === "sent"}
                 onToggleSelect={() => toggleSelected(email.id)}
-                onOpen={() => openEmail(email.id)}
+                onOpen={() => open(email)}
                 onToggleStar={() => toggleStar(email.id, !email.isStarred)}
               />
             </Fragment>

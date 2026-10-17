@@ -1,6 +1,7 @@
-import { Clock, Eye, Paperclip, PushPin, Star } from "@phosphor-icons/react";
+import { ArrowSquareOut, Clock, Eye, Paperclip, PushPin, Star } from "@phosphor-icons/react";
 import type { EmailListItem } from "../../lib/api/types";
 import { formatFullDate, formatListDate } from "../../lib/format/date";
+import { sponsoredHost } from "../../lib/mail/sponsored";
 import { Checkbox } from "../ui/Checkbox";
 import { SenderAvatar } from "./SenderAvatar";
 
@@ -25,43 +26,65 @@ export function EmailListRow({
   onOpen,
   onToggleStar,
 }: EmailListRowProps) {
-  const counterpart = outgoing ? email.recipientAddress : email.senderAddress;
-  const label = outgoing
-    ? `To: ${email.recipientAddress || "(no recipient)"}`
-    : email.senderName || email.senderAddress;
+  const sponsor = sponsoredHost(email);
+  const counterpart = sponsor
+    ? `ad@${sponsor}`
+    : outgoing
+      ? email.recipientAddress
+      : email.senderAddress;
+  const label = sponsor
+    ? sponsor
+    : outgoing
+      ? `To: ${email.recipientAddress || "(no recipient)"}`
+      : email.senderName || email.senderAddress;
   return (
     <article
       data-email-id={email.id}
-      className={`wm-row${email.isRead ? "" : " unread"}${active ? " active" : ""}${selected ? " selected" : ""}${email.isPinned ? " pinned" : ""}`}
+      className={`wm-row${email.isRead || sponsor ? "" : " unread"}${active ? " active" : ""}${selected ? " selected" : ""}${email.isPinned ? " pinned" : ""}${sponsor ? " sponsored" : ""}`}
     >
       <span className="wm-row-unread" aria-hidden="true" />
       <span>
-        <Checkbox
-          checked={selected}
-          onCheckedChange={onToggleSelect}
-          label={`Select ${email.subject || "message"}`}
-        />
+        {!email.isPinned && (
+          <Checkbox
+            checked={selected}
+            onCheckedChange={onToggleSelect}
+            label={`Select ${email.subject || "message"}`}
+          />
+        )}
       </span>
+      {sponsor ? (
+        <span aria-hidden="true" />
+      ) : (
+        <button
+          type="button"
+          className={`wm-row-star${email.isStarred ? " on" : ""}`}
+          aria-label={email.isStarred ? "Remove star" : "Star message"}
+          onClick={onToggleStar}
+        >
+          <Star weight={email.isStarred ? "fill" : "regular"} />
+        </button>
+      )}
       <button
         type="button"
-        className={`wm-row-star${email.isStarred ? " on" : ""}`}
-        aria-label={email.isStarred ? "Remove star" : "Star message"}
-        onClick={onToggleStar}
+        className="wm-row-open"
+        onClick={onOpen}
+        title={sponsor ? `Opens ${sponsor} in your browser` : undefined}
       >
-        <Star weight={email.isStarred ? "fill" : "regular"} />
-      </button>
-      <button type="button" className="wm-row-open" onClick={onOpen}>
         <SenderAvatar
           className="wm-row-avatar"
-          name={outgoing ? null : email.senderName}
+          name={outgoing || sponsor ? null : email.senderName}
           address={counterpart}
         />
         <span className="wm-row-sender">{label}</span>
         <span className="wm-row-subject">
-          {email.isPinned && (
-            <span className="wm-row-pin" title="Pinned">
-              <PushPin weight="fill" aria-label="Pinned" />
-            </span>
+          {sponsor ? (
+            <span className="wm-row-sponsored">Sponsored</span>
+          ) : (
+            email.isPinned && (
+              <span className="wm-row-pin" title="Pinned">
+                <PushPin weight="fill" aria-label="Pinned" />
+              </span>
+            )
           )}
           {email.scheduledFor && (
             <span
@@ -81,7 +104,13 @@ export function EmailListRow({
           {email.subject || "No subject"}
           {email.hasAttachments && <Paperclip className="wm-row-attach" />}
         </span>
-        <span className="wm-row-date">{formatListDate(email.receivedAt)}</span>
+        <span className="wm-row-date">
+          {sponsor ? (
+            <ArrowSquareOut weight="bold" aria-label="External link" />
+          ) : (
+            formatListDate(email.receivedAt)
+          )}
+        </span>
       </button>
     </article>
   );

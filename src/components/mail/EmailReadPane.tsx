@@ -244,9 +244,12 @@ export function EmailReadPane({ emailId }: { emailId: string }) {
       r: reply,
       a: replyAll,
       f: () => void forward(),
-      e: () => email && mutation.mutate({ action: email.isArchived ? "unarchive" : "archive" }),
-      "#": () => email && mutation.mutate({ action: "trash" }),
-      Delete: () => email && mutation.mutate({ action: "trash" }),
+      e: () =>
+        email &&
+        !email.isPinned &&
+        mutation.mutate({ action: email.isArchived ? "unarchive" : "archive" }),
+      "#": () => email && !email.isPinned && mutation.mutate({ action: "trash" }),
+      Delete: () => email && !email.isPinned && mutation.mutate({ action: "trash" }),
       s: () => email && mutation.mutate({ action: email.isStarred ? "unstar" : "star" }),
       u: () => email && !isOutgoing && mutation.mutate({ action: "unread" }),
       Escape: () => openEmail(null),
@@ -287,17 +290,23 @@ export function EmailReadPane({ emailId }: { emailId: string }) {
             icon={<Star weight={email.isStarred ? "fill" : "regular"} />}
             onClick={() => mutation.mutate({ action: email.isStarred ? "unstar" : "star" })}
           />
-          <IconButton
-            label={email.isArchived ? "Unarchive" : "Archive"}
-            icon={<ArchiveBoxIcon />}
-            onClick={() => mutation.mutate({ action: email.isArchived ? "unarchive" : "archive" })}
-          />
-          <IconButton
-            danger
-            label="Move to trash"
-            icon={<Trash />}
-            onClick={() => mutation.mutate({ action: "trash" })}
-          />
+          {!email.isPinned && (
+            <>
+              <IconButton
+                label={email.isArchived ? "Unarchive" : "Archive"}
+                icon={<ArchiveBoxIcon />}
+                onClick={() =>
+                  mutation.mutate({ action: email.isArchived ? "unarchive" : "archive" })
+                }
+              />
+              <IconButton
+                danger
+                label="Move to trash"
+                icon={<Trash />}
+                onClick={() => mutation.mutate({ action: "trash" })}
+              />
+            </>
+          )}
         </div>
       </div>
       <div className="wm-read-scroll">
