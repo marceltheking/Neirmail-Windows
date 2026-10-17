@@ -70,15 +70,15 @@
 
 ## Features
 
-| | |
-| :-- | :-- |
-| **Sign in** | Account Key login, TOTP two-factor, session restore, auto-lock after inactivity |
-| **Mail** | Folders, PGP decryption, attachments, drafts, scheduled send, undo send, reply all, forward, batch actions |
-| **Compose** | Plain text or formatted HTML, send from any alias, paste designed emails straight in |
-| **Identity** | Primary addresses, custom and random aliases, plan status, storage use |
-| **Account** | Contacts, filters, sessions, PGP keys, app passwords, 2FA, recovery phrase rotation, export |
-| **Desktop** | Native notifications with sound, keyboard shortcuts, tray, signed auto-updates |
-| **Look** | Matching dark and light Neir themes, resizable split layout |
+|              |                                                                                                            |
+| :----------- | :--------------------------------------------------------------------------------------------------------- |
+| **Sign in**  | Account Key login, TOTP two-factor, session restore, auto-lock after inactivity                            |
+| **Mail**     | Folders, PGP decryption, attachments, drafts, scheduled send, undo send, reply all, forward, batch actions |
+| **Compose**  | Plain text or formatted HTML, send from any alias, paste designed emails straight in                       |
+| **Identity** | Primary addresses, custom and random aliases, plan status, storage use                                     |
+| **Account**  | Contacts, filters, sessions, PGP keys, app passwords, 2FA, recovery phrase rotation, export                |
+| **Desktop**  | Native notifications with sound, keyboard shortcuts, tray, signed auto-updates                             |
+| **Look**     | Matching dark and light Neir themes, resizable split layout                                                |
 
 > [!NOTE]
 > The app signs in to existing accounts. Creating an account or recovering a lost Account Key happens on the web at [neir.io/signup](https://neir.io/signup) and [neir.io/recovery](https://neir.io/recovery).
@@ -117,11 +117,11 @@ Email still follows the system boundaries described in the [Privacy Policy](http
 
 <br>
 
-| Tool | Version |
-| --- | --- |
-| Node.js | 24 or newer |
-| npm | 11 or newer |
-| Rust | stable |
+| Tool           | Version                                                                        |
+| -------------- | ------------------------------------------------------------------------------ |
+| Node.js        | 24 or newer                                                                    |
+| npm            | 11 or newer                                                                    |
+| Rust           | stable                                                                         |
 | Platform tools | see the [Tauri prerequisites guide](https://v2.tauri.app/start/prerequisites/) |
 
 </details>
