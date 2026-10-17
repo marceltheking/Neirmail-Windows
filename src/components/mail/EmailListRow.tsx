@@ -1,7 +1,7 @@
 import { ArrowSquareOut, Clock, Eye, Paperclip, PushPin, Star } from "@phosphor-icons/react";
 import type { EmailListItem } from "../../lib/api/types";
 import { formatFullDate, formatListDate } from "../../lib/format/date";
-import { sponsoredHost } from "../../lib/mail/sponsored";
+import { sponsorMark, sponsoredHost } from "../../lib/mail/sponsored";
 import { Checkbox } from "../ui/Checkbox";
 import { SenderAvatar } from "./SenderAvatar";
 
@@ -27,6 +27,7 @@ export function EmailListRow({
   onToggleStar,
 }: EmailListRowProps) {
   const sponsor = sponsoredHost(email);
+  const mark = sponsorMark(sponsor);
   const counterpart = sponsor
     ? `ad@${sponsor}`
     : outgoing
@@ -70,11 +71,17 @@ export function EmailListRow({
         onClick={onOpen}
         title={sponsor ? `Opens ${sponsor} in your browser` : undefined}
       >
-        <SenderAvatar
-          className="wm-row-avatar"
-          name={outgoing || sponsor ? null : email.senderName}
-          address={counterpart}
-        />
+        {mark ? (
+          <span className="wm-row-avatar wm-row-avatar-mark" aria-hidden="true">
+            <img src={mark} alt="" />
+          </span>
+        ) : (
+          <SenderAvatar
+            className="wm-row-avatar"
+            name={outgoing || sponsor ? null : email.senderName}
+            address={counterpart}
+          />
+        )}
         <span className="wm-row-sender">{label}</span>
         <span className="wm-row-subject">
           {sponsor ? (

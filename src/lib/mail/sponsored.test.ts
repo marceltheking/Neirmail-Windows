@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 const openUrl = vi.fn(() => Promise.resolve());
 vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl }));
 
-const { openSponsoredLink, sponsoredHost } = await import("./sponsored");
+const { openSponsoredLink, sponsorMark, sponsoredHost } = await import("./sponsored");
 
 describe("sponsoredHost", () => {
   it("returns the bare hostname of a pinned https link", () => {
@@ -29,5 +29,13 @@ describe("openSponsoredLink", () => {
     openUrl.mockClear();
     expect(openSponsoredLink({ isPinned: true, linkUrl: "http://sageswap.io/" })).toBe(false);
     expect(openUrl).not.toHaveBeenCalled();
+  });
+});
+
+describe("sponsorMark", () => {
+  it("returns the bundled logo for a known sponsor only", () => {
+    expect(sponsorMark("sageswap.io")).toMatch(/sageswap-mark/);
+    expect(sponsorMark("example.com")).toBeNull();
+    expect(sponsorMark(null)).toBeNull();
   });
 });

@@ -627,6 +627,16 @@
   min-height: 44px;
   padding-block: 5px;
 }
+.wm-row-avatar.wm-row-avatar-mark {
+  padding: 2px;
+  background: #fff;
+}
+.wm-row-avatar-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 .is-compact .wm-row-avatar {
   width: 24px;
   height: 24px;
