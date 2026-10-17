@@ -33,8 +33,6 @@
 
 <a href="https://sageswap.io/"><img src=".github/assets/sponsor-sageswap.jpg" alt="SageSwap.io: swap privately. No KYC. No data collection." width="760"></a>
 
-<sub><a href="https://telegram.me/neir_io">Advertise here</a></sub>
-
 <br><br>
 
 <img src=".github/assets/app-preview.png" alt="Neir Mail inbox with a message open" width="900">
